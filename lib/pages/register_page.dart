@@ -1,8 +1,11 @@
 //import 'dart:math';
 //import 'dart:ui';
 
+import 'package:chat/helpers/mostrar_alerta.dart';
+import 'package:chat/services/auth_service.dart';
 import 'package:chat/widgets/boton_azul.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../widgets/custom_input.dart';
 import '../widgets/custom_label.dart';
@@ -57,6 +60,7 @@ class __FormState extends State<_Form> {
   final nombCtrl = TextEditingController();
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
     return Container(
       margin: const EdgeInsets.only(top: 40),
       padding: const EdgeInsets.symmetric(horizontal: 50),
@@ -81,11 +85,23 @@ class __FormState extends State<_Form> {
               textController: passCtrl,
               isPassword: true),
           BotonAzul(
-            text: "ingrese",
-            onPressed: () {
-              print(emailCtrl.text);
-              print(passCtrl.text);
-            },
+            text: "crear cuenta",
+            onPressed: authService.autenticando
+                ? null
+                : () async {
+                    print(emailCtrl.text);
+                    print(passCtrl.text);
+                    print(nombCtrl.text);
+                    final registrOk = await authService.register(
+                        nombCtrl.text.trim(),
+                        emailCtrl.text,
+                        passCtrl.text.trim());
+                    if (registrOk == true) {
+                      Navigator.popAndPushNamed(context, "usario");
+                    } else {
+                      mostrarAlerta(context, "Registro Incorrecto", "ok");
+                    }
+                  },
           )
           // CustomInput(),
 

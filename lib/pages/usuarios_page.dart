@@ -1,5 +1,7 @@
 import 'package:chat/models/usuarios.dart';
+import 'package:chat/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class UsuariosPage extends StatefulWidget {
@@ -13,18 +15,19 @@ class _UsuariosPageState extends State<UsuariosPage> {
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
   final usuario = [
-    Usuarios(
-        uid: "1", nombre: "Maury", email: "test1@gmail.com", online: false),
-    Usuarios(uid: "2", nombre: "Juan", email: "test2@gmail.com", online: true),
-    Usuarios(uid: "3", nombre: "Pedro", email: "test3@gmail.com", online: true),
+    Usuario(uid: "1", nombre: "Maury", email: "test1@gmail.com", online: false),
+    Usuario(uid: "2", nombre: "Juan", email: "test2@gmail.com", online: true),
+    Usuario(uid: "3", nombre: "Pedro", email: "test3@gmail.com", online: true),
   ];
   @override
   Widget build(BuildContext context) {
+    final authService = Provider.of<AuthService>(context);
+    final usuario = authService.usuario;
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
           title: Text(
-            "Mi nombre", textAlign: TextAlign.center,
+            usuario.nombre, textAlign: TextAlign.center,
             style: TextStyle(color: Colors.black54),
             // textAlign: TextAlign.center,
           ),
@@ -35,7 +38,11 @@ class _UsuariosPageState extends State<UsuariosPage> {
                 Icons.exit_to_app,
                 color: Colors.black54,
               ),
-              onPressed: () {}),
+              onPressed: () {
+                //  TODO //desconectar del socket
+                AuthService.deleteToken();
+                Navigator.pushReplacementNamed(context, "login");
+              }),
           actions: [
             Container(
               margin: EdgeInsets.only(right: 10),
@@ -70,18 +77,18 @@ class _UsuariosPageState extends State<UsuariosPage> {
         itemCount: usuario.length);
   }
 
-  ListTile _usuarioTile(Usuarios usuario) {
+  ListTile _usuarioTile(Usuario usuario) {
     return ListTile(
-      title: Text(usuario.nombre!),
-      subtitle: Text(usuario.email!),
+      title: Text(usuario.nombre),
+      subtitle: Text(usuario.email),
       leading: CircleAvatar(
-        child: Text(usuario.nombre!.substring(0, 2)),
+        child: Text(usuario.nombre.substring(0, 2)),
       ),
       trailing: Container(
         width: 10,
         height: 10,
         decoration: BoxDecoration(
-            color: usuario.online! ? Colors.green[300] : Colors.red,
+            color: usuario.online ? Colors.green[300] : Colors.red,
             borderRadius: BorderRadius.circular(100)),
       ),
     );
